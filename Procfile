@@ -1,1 +1,1 @@
-web: gunicorn mafia.wsgi
+web: gunicorn mafia.wsgi --log-file -
