@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafia</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link href='https://fonts.googleapis.com/css?family=Alegreya Sans SC' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+    <script src="{% static 'ingame.js' %}"></script>
+</head>
+<body class="{{game.game_code}}">
+    <div class="container center" id="{{user}}">
+        <h1 style="text-align:center;">Mafia Party Game</h1>
+        <h3 style="text-align:center;">round <span class="round"></span></h3>
+        <h3 class="counter" style="text-align:center;"></h3>
+        <hr id="role-top-hr">
+        <div class="row role-container">
+            <div class="row"><button class="toggle-show-role">Show/Hide</button></div>
+            <div class="role-text-container"><h3 class="role" style="margin-top:10px;">Your role is {%if role%}{{role}}{%endif%}</h3></div>
+        </div>
+        <hr id="role-bottom-hr">
+        <div class="row" style="margin-bottom:16px;">
+            <div class="game-info">
+                <p>Narrator is {{game.narrator_name}}</p>
+                <p>There {%if game.mafia_num == 1%}is one{%else%}are {{game.mafia_num}}{%endif%} Mafia</p>
+                {%if game.add_vampire%}<p>There is a vampire</p>{% endif %}
+                {%if game.add_cop%}<p>There is a cop</p>{%endif%}
+
+                <div class="user-container">
+                    <div class="user-list-ingame">
+                        {% for usr,role in user_roles.items %}
+                        {% if user.role == 1%}
+                        <div class="users-ingame" style="{%if role == 'mafia' %}color:red;{%endif%}">{{usr}} - {{role}}</div>
+                        {% else %}
+                        <div class="users-ingame">{{usr}}</div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+
+
+            </div>
+            <div class="players">
+
+
+            </div>
+        </div>
+
+        <div class="row btns-pads">
+            <button type="button" class="btn btn-default btn-pad" id="end-btn"
+                    style="{% if user.role == 1 or user.creator == True%} display:inline;{%else%}display:none;{%endif%}">End Game</button>
+            <button type="button" class="btn btn-default btn-pad" id="leave-btn"
+                    style="{% if user.creator == True or user.role == 1%} display:none;{%else%}display:inline;{%endif%}">Leave Game</button>
+            <button type="button" class="btn btn-default btn-pad" id="start-round-btn"
+                    style="{% if user.role == 1  %}display:inline;{%else%}display:none;{% endif %}">Start Round</button>
+
+        </div>
+
+    </div>
+</body>
+</html>

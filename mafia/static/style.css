@@ -1,0 +1,128 @@
+body {
+    font-family: 'Alegreya Sans SC';
+
+}
+.center-align{
+    max-width:350px;
+    text-align:center;
+    margin: 5% auto 10% auto;
+}
+.center {
+    max-width:300px;
+    margin: 5% auto 10% auto;
+}
+.form-padding {
+    margin-bottom:12px;
+    font-size:16px;
+}
+.btn-pad{
+    margin-left:3px;
+}
+#error-msg{
+    color:red;
+    display: none;
+}
+.user-list {
+    max-width:300px;
+}
+.user-name{
+    float:left;
+    margin-top:8px;
+    margin-bottom: 8px;
+    padding-left:5px;
+}
+.user-entry{
+    overflow:hidden;
+    font-size: 18px;
+    margin-top:12px;
+    max-width: 300px;
+    background-color:#eceae1;
+}
+.remove-btn{
+    text-align:center;
+    float:right;
+    padding-top:4px;
+    padding-right:2px;
+
+}
+#game-code{
+    text-align:center;
+}
+.btns-pad{
+    margin-top:16px;
+}
+.config-p{
+    margin-bottom:2px;
+    margin-top:4px;
+}
+.config-form {
+    float:left;
+}
+.config{
+    max-width:270px;
+    margin-left:1px;
+}
+.toggle-show-role{
+    padding: 2px 10px;
+    line-height: 1em;
+    border: none;
+    font-size: 11px;
+    text-transform: none;
+    color: #998;
+    background-color: transparent;
+    float:right
+}
+#role-top-hr{
+    margin-bottom:5px;
+}
+#role-bottom-hr{
+    margin-top:8px;
+
+}
+.role-text-container{
+    text-align:center;
+}
+.game-info{
+    margin-left:16px;
+}
+.users-ingame{
+    background-color:#f9f9f9;
+    padding-left:2px;
+    text-align:left;
+    width:100%;
+    overflow:hidden;
+    padding: 5px;
+    display:inline-block;
+    font-size:14px;
+    margin-bottom:6px;
+}
+.user-list-ingame{
+    column-count:2;
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    padding-left:0px;
+    list-style-type: none;
+    column-gap:6px;
+    margin-top:2px;
+    overflow:hidden;
+    font-size:0px
+}
+.users-ingame-striked{
+    padding-left:2px;
+    font-size:14px;
+    margin-bottom:6px;
+    text-align:left;
+    width:100%;
+    overflow:hidden;
+    padding: 5px;
+    display:inline-block;
+    background-color: #bbb;
+    text-decoration: line-through;
+}
+.game-input{
+    display:block;
+}
+.bare-btn{
+    background: transparent;
+    border: none !important;
+}

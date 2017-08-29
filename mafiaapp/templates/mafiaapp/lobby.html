@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafia</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link href='https://fonts.googleapis.com/css?family=Alegreya Sans SC' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+    <script src="{% static 'lobby.js' %}"></script>
+</head>
+<body>
+    <div class="container center" id="{{user}}">
+        <h1 style="text-align:center;">Mafia Party Game</h1>
+        <hr>
+        {% if game %}
+        <h3 id="game-code" class="{{game.game_code}}">Game Code: {{game.game_code}}</h3>
+        <div class="lobby">
+            <div class="row config" style="{% if user.creator == False %}display:none;{%else%}display:block;{% endif %}">
+                <form class="form-config" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <p class="config-p">Round time</p>
+                        <select class="form-control" id="roundtime-form">
+                            <option>1 min</option>
+                            <option>2 min</option>
+                            <option>3 min</option>
+                            <option>4 min</option>
+                            <option>5 min</option>
+                            <option>6 min</option>
+                            <option>7 min</option>
+                            <option>8 min</option>
+                            <option>9 min</option>
+                            <option>10 min</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class=".col-sm-4"><p class="config-p">Narrator</p></div>
+                        <select class="form-control" id="narrator-form">
+                            <option class="f-{{user}}">{{user}}</option>
+                            {% for usr in userlist_nomainusr %}
+                            <option class="f-{{usr}}">{{usr}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row config-p">
+                       <label class="checkbox-inline"><input type="checkbox" id="vampire-form">Add Vampire</label>
+                    </div>
+                    <div class="row config-p">
+                         <label class="checkbox-inline"><input type="checkbox" id="cop-form" >Add Cop</label>
+
+
+                    </div>
+                </form>
+            </div>
+            <div class="row user-list">
+                <form class="userlistform" method="POST">
+                {% csrf_token %}
+                <div class='user-entry' id="{{user}}-div">
+                    <p class="user-name">{{user}}</p>
+                </div>
+
+
+                {% for usr in userlist_nomainusr %}
+                <div class="user-entry" id="{{usr}}-div">
+                    <p class="user-name">{{usr}}</p>
+                    <button class="bare-btn remove-btn" ><span class="glyphicon glyphicon-remove remove-btn" id="{{usr}}"  aria-hidden="true"></span></button>
+                </div>
+                {% endfor %}
+
+                {% else %}
+                    <p id="error-msg">No Users</p>
+                </form>
+            </div>
+        {% endif %}
+        </div>
+        {% if user %}
+        <div class="row btns-pad">
+            <button type="button" class="btn btn-default btn-pad" id="start-lobby-btn"
+                    style="{%if user.creator == False %}display:none;{%else%}display:inline;{% endif %}">Start Game</button>
+            <button type="button" class="btn btn-default btn-pad" id="leave-btn">Leave Game</button>
+
+        </div>
+        {% endif %}
+    </div>
+
+
+
+</body>
+</html>
