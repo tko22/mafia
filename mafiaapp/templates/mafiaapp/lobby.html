@@ -73,13 +73,14 @@
                 {% endfor %}
 
                 {% else %}
-                    <p id="error-msg">No Users</p>
+                    <p id="error-msgs">No Users</p>
                 </form>
             </div>
         {% endif %}
         </div>
         {% if user %}
         <div class="row btns-pad">
+            <p id="error-msg">ERROR</p>
             <button type="button" class="btn btn-default btn-pad" id="start-lobby-btn"
                     style="{%if user.creator == False %}display:none;{%else%}display:inline;{% endif %}">Start Game</button>
             <button type="button" class="btn btn-default btn-pad" id="leave-btn">Leave Game</button>

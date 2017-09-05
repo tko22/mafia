@@ -46,16 +46,17 @@ $(function(){
                 time: rt,
                 narrator: narrator,
                 cop: cop,
-
             }),
-            async: true,
+
             dataType:'json',
             success: function(data){
                 if(data.status == "success"){
                     window.location.replace("/"+data.code+"/game");
                 }
                 else{
+                    console.log(data.message);
                     $('#error-msg').text(data.message);
+                    $('#error-msg').show()
                 }
             }
 
@@ -121,6 +122,7 @@ function getusers(){
             data: JSON.stringify({
                 code: $('#game-code').attr('class'),
             }),
+            async: true,
             dataType: 'json',
             success: function(data){
                 if (data.status == "failed" ) {

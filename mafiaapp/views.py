@@ -176,165 +176,171 @@ def removeuser(request):
 def startgame(request):
     ret = {'status': 'success'}
     if request.method == 'POST':
-        data = request.body
-        jsondata = json.loads(data)
+        try:
+            data = request.body
+            jsondata = json.loads(data)
+            # get configurations
+            name = jsondata.get('name')
+            code = jsondata.get('code')
+            vampire = jsondata.get('vampire')
+            time = jsondata.get('time')
+            cop = jsondata.get('cop')
+            narrator_name = jsondata.get('narrator')
+            game = Game.objects.get(game_code=code)
+            user_list = game.user_set.all()
 
-        # get configurations
-        name = jsondata.get('name')
-        code = jsondata.get('code')
-        vampire = jsondata.get('vampire')
-        time = jsondata.get('time')
-        cop = jsondata.get('cop')
-        narrator_name = jsondata.get('narrator')
-        game = Game.objects.get(game_code=code)
-        user_list = game.user_set.all()
+            # check if user that started game is the creator
+            if 'user' in request.session:
+                username = request.session['user']
+                user = user_list.get(name=username)
+                if user.creator == False:
+                    ret = returnfail(ret, 'User that created the game must start the game')
+            else:
+                ret = returnfail(ret, 'create user')
+                return JsonResponse(ret)
 
-        # check if user that started game is the creator
-        if 'user' in request.session:
-            username = request.session['user']
-            user = user_list.get(name=username)
-            if user.creator == False:
-                ret = returnfail(ret, 'User that created the game must start the game')
-        else:
-            ret = returnfail(ret, 'create user')
-            return JsonResponse(ret)
+            # put config in database
+            game.add_vampire = vampire
+            game.add_cop = cop
+            game.round_length = time  # add roundtime to database
+            game.round_num = 0
+            game.narrator_name = narrator_name
+            game.save()
+            # assign user roles
+            narrator = user_list.get(name=narrator_name)
+            narrator.role = 1
+            narrator.save()
+            i = 0
+            vampire_index = 0
+            cop_index = 0
+            # one mafia
+            mafia_index = random.randint(0, len(user_list) - 1)
+            healer_index = random.randint(0, len(user_list) - 1)
 
-        # put config in database
-        game.add_vampire = vampire
-        game.add_cop = cop
-        game.round_length = time  # add roundtime to database
-        game.round_num = 0
-        game.narrator_name = narrator_name
-        game.save()
-        # assign user roles
-        narrator = user_list.get(name=narrator_name)
-        narrator.role = 1
-        narrator.save()
-        i = 0
-        vampire_index = 0
-        cop_index = 0
-        # one mafia
-        mafia_index = random.randint(0, len(user_list) - 1)
-        healer_index = random.randint(0, len(user_list) - 1)
-        while (healer_index) == mafia_index: healer_index = random.randint(0, len(user_list) - 1)
-        if user_list.count() < 5:
-            ret['status'] = 'failed'
-            ret['message'] = 'you need more players'
-            return JsonResponse(ret)
-        # one mafia
-        if user_list.count() < 6:
-            if vampire == True:
-                print "vampire is true"
-                vampire_index = random.randint(0, len(user_list) - 1)
-                while (vampire_index == mafia_index or vampire_index == healer_index):
+            if user_list.count() < 5:
+                ret['status'] = 'failed'
+                ret['message'] = 'you need at least 5 players to play'
+                return JsonResponse(ret)
+
+            while (healer_index) == mafia_index:
+                healer_index = random.randint(0, len(user_list) - 1)
+
+            # one mafia
+            if user_list.count() < 6:
+                if vampire == True:
+                    print "vampire is true"
                     vampire_index = random.randint(0, len(user_list) - 1)
-            if cop == True:
-                print "cop is true"
-                cop_index = random.randint(0, len(user_list) - 1)
-                while cop_index == mafia_index or cop_index == vampire_index or cop_index == healer_index:
+                    while (vampire_index == mafia_index or vampire_index == healer_index):
+                        vampire_index = random.randint(0, len(user_list) - 1)
+                if cop == True:
+                    print "cop is true"
                     cop_index = random.randint(0, len(user_list) - 1)
-            for usr in user_list:
-                if (usr.name != narrator_name):
-                    if i == mafia_index:
-                        usr.role = 2
-                        usr.save()
-                    elif i == healer_index:
-                        usr.role = 4
-                        usr.save()
-                    elif cop == True and i == cop_index:
-                        usr.role = 6
-                        usr.save()
-                    elif vampire == True and i == vampire_index:
-                        usr.role = 5
-                        usr.save()
-                    else:
-                        usr.role = 3
-                        usr.save()
-                    i = i + 1
-        # 2 mafia
-        elif user_list.count() < 10:
-            game.mafia_num = 2
-            if vampire == True:
-                print "vampire is true"
-                vampire_index = random.randint(0, len(user_list) - 1)
-                while (vampire_index == mafia_index or vampire_index == healer_index):
+                    while cop_index == mafia_index or cop_index == vampire_index or cop_index == healer_index:
+                        cop_index = random.randint(0, len(user_list) - 1)
+                for usr in user_list:
+                    if (usr.name != narrator_name):
+                        if i == mafia_index:
+                            usr.role = 2
+                            usr.save()
+                        elif i == healer_index:
+                            usr.role = 4
+                            usr.save()
+                        elif cop == True and i == cop_index:
+                            usr.role = 6
+                            usr.save()
+                        elif vampire == True and i == vampire_index:
+                            usr.role = 5
+                            usr.save()
+                        else:
+                            usr.role = 3
+                            usr.save()
+                        i = i + 1
+            # 2 mafia
+            elif user_list.count() < 10:
+                game.mafia_num = 2
+                if vampire == True:
+                    print "vampire is true"
                     vampire_index = random.randint(0, len(user_list) - 1)
-            if cop == True:
-                print "cop is true"
-                cop_index = random.randint(0, len(user_list) - 1)
-                while cop_index == mafia_index or cop_index == vampire_index or cop_index == healer_index:
+                    while (vampire_index == mafia_index or vampire_index == healer_index):
+                        vampire_index = random.randint(0, len(user_list) - 1)
+                if cop == True:
+                    print "cop is true"
                     cop_index = random.randint(0, len(user_list) - 1)
-            mafia_index_2 = random.randint(0, len(user_list) - 1)
-            while mafia_index_2 == mafia_index or mafia_index_2 == vampire_index or mafia_index_2 == cop_index or mafia_index_2 == healer_index:
+                    while cop_index == mafia_index or cop_index == vampire_index or cop_index == healer_index:
+                        cop_index = random.randint(0, len(user_list) - 1)
                 mafia_index_2 = random.randint(0, len(user_list) - 1)
-            for usr in user_list:
-                if (usr.name != narrator_name):
-                    if i == mafia_index or i == mafia_index_2:
-                        usr.role = 2
-                        usr.save()
-                    elif i == healer_index:
-                        usr.role = 4
-                        usr.save()
-                    elif cop == True and i == cop_index:
-                        usr.role = 6
-                        usr.save()
-                    elif vampire == True and i == vampire_index:
-                        usr.role = 5
-                        usr.save()
-                    else:
-                        usr.role = 3
-                        usr.save()
-                    i = i + 1
+                while mafia_index_2 == mafia_index or mafia_index_2 == vampire_index or mafia_index_2 == cop_index or mafia_index_2 == healer_index:
+                    mafia_index_2 = random.randint(0, len(user_list) - 1)
+                for usr in user_list:
+                    if (usr.name != narrator_name):
+                        if i == mafia_index or i == mafia_index_2:
+                            usr.role = 2
+                            usr.save()
+                        elif i == healer_index:
+                            usr.role = 4
+                            usr.save()
+                        elif cop == True and i == cop_index:
+                            usr.role = 6
+                            usr.save()
+                        elif vampire == True and i == vampire_index:
+                            usr.role = 5
+                            usr.save()
+                        else:
+                            usr.role = 3
+                            usr.save()
+                        i = i + 1
 
-        # 3 mafia
-        else:
-            game.mafia_num = 3
-            if vampire == True:
-                print "vampire is true"
-                vampire_index = random.randint(0, len(user_list) - 1)
-                while (vampire_index == mafia_index or vampire_index == healer_index):
+            # 3 mafia
+            else:
+                game.mafia_num = 3
+                if vampire == True:
+                    print "vampire is true"
                     vampire_index = random.randint(0, len(user_list) - 1)
-            if cop == True:
-                print "cop is true"
-                cop_index = random.randint(0, len(user_list) - 1)
-                while cop_index == mafia_index or cop_index == vampire_index or cop_index == healer_index:
+                    while (vampire_index == mafia_index or vampire_index == healer_index):
+                        vampire_index = random.randint(0, len(user_list) - 1)
+                if cop == True:
+                    print "cop is true"
                     cop_index = random.randint(0, len(user_list) - 1)
-            mafia_index_2 = random.randint(0, len(user_list) - 1)
-            while mafia_index_2 == mafia_index or mafia_index_2 == vampire_index or mafia_index_2 == cop_index \
-                    or mafia_index_2 == healer_index:
+                    while cop_index == mafia_index or cop_index == vampire_index or cop_index == healer_index:
+                        cop_index = random.randint(0, len(user_list) - 1)
                 mafia_index_2 = random.randint(0, len(user_list) - 1)
-            mafia_index_3 = random.randint(0, len(user_list) - 1)
-            while mafia_index_3 == mafia_index or mafia_index_3 == vampire_index or mafia_index_3 == cop_index \
-                    or mafia_index_3 == healer_index or mafia_index_3 == mafia_index_2:
+                while mafia_index_2 == mafia_index or mafia_index_2 == vampire_index or mafia_index_2 == cop_index \
+                        or mafia_index_2 == healer_index:
+                    mafia_index_2 = random.randint(0, len(user_list) - 1)
                 mafia_index_3 = random.randint(0, len(user_list) - 1)
+                while mafia_index_3 == mafia_index or mafia_index_3 == vampire_index or mafia_index_3 == cop_index \
+                        or mafia_index_3 == healer_index or mafia_index_3 == mafia_index_2:
+                    mafia_index_3 = random.randint(0, len(user_list) - 1)
+                for usr in user_list:
+                    if (usr.name != narrator_name):
+                        if i == mafia_index or i == mafia_index_2 or i == mafia_index_3:
+                            usr.role = 2
+                            usr.save()
+                        elif i == healer_index:
+                            usr.role = 4
+                            usr.save()
+                        elif cop == True and i == cop_index:
+                            usr.role = 6
+                            usr.save()
+                        elif vampire == True and i == vampire_index:
+                            usr.role = 5
+                            usr.save()
+                        else:
+                            usr.role = 3
+                            usr.save()
+                        i = i + 1
+            # set all users in session
             for usr in user_list:
-                if (usr.name != narrator_name):
-                    if i == mafia_index or i == mafia_index_2 or i == mafia_index_3:
-                        usr.role = 2
-                        usr.save()
-                    elif i == healer_index:
-                        usr.role = 4
-                        usr.save()
-                    elif cop == True and i == cop_index:
-                        usr.role = 6
-                        usr.save()
-                    elif vampire == True and i == vampire_index:
-                        usr.role = 5
-                        usr.save()
-                    else:
-                        usr.role = 3
-                        usr.save()
-                    i = i + 1
-        # set all users in session
-        for usr in user_list:
-            usr.in_game = True
-            usr.save()
-        # set game in session
-        game.in_game = True
-        game.save()
+                usr.in_game = True
+                usr.save()
+            # set game in session
+            game.in_game = True
+            game.save()
 
-        ret['code'] = code
-        return JsonResponse(ret)
+            ret['code'] = code
+            return JsonResponse(ret)
+        except Exception as ex:
+            print ex.message
     else:
         ret = returnfail(ret, 'not POST')
         return JsonResponse(ret)
