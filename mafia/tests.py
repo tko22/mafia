@@ -42,3 +42,17 @@ class UserModelTests(TestCase):
         second.delete()
 
 
+class GameAndUserTest(TestCase):
+    code1 = randomcode()
+    name1 = 'tim1'
+    def setUp(self):
+        game = Game.objects.create(game_code=self.code1)
+        game.user_set.create(role=0, name=self.name1, creator=True)
+        game.user_set.create(name=self.name2, creator=False)
+        game.save()
+    def check(self):
+        game = Game.objects.get(game_code=self.code1)
+        user_set = game.user_set.all()
+        self.assertEqual(user_set[0], self.name1)
+        self.assertEqual(user_set[1].game_id.game_code, self.code1 )
+        self.assertEqual(game.in_game, False)
